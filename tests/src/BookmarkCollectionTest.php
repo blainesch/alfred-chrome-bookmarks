@@ -4,16 +4,19 @@ use alfmarks\BookmarkCollection;
 
 class BookmarkCollectionTest extends Unit {
 
-	public function testReturnsEmptyItemArray() {
-		$result = $this->subject()->to_xml();
-		$expected = "<?xml version=\"1.0\"?>\n<items/>\n";
-		$this->assertEquals($result, $expected);
+	public function setUp() {
+		$this->classTester = new Unit(self::getCalledClass());
 	}
 
-	public function callsToXmlOnNodes() {
-		$stub = $this->getMockBuilder('stdclass')->getMock();
-		$stub->expects($this->once())->method('to_xml');
-		$this->subject(array($stub))->to_xml();
+	public function testReturnsEmptyItemArray() {
+		$this->assertEquals(
+			"<?xml version=\"1.0\"?>\n<items/>\n",
+			$this
+				->classTester
+				->buildSubject()
+				->to_xml()
+		);
 	}
 
 }
+
