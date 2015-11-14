@@ -16,6 +16,7 @@ class SourceTest extends Unit {
 
 	public function setUp() {
 		$this->root = vfsStream::setup('home');
+		$this->classTester = new Unit(self::getCalledClass());
 	}
 
 	public function tearDown() {
@@ -42,10 +43,12 @@ class SourceTest extends Unit {
 				'url' => 'http://yahoo.com',
 			),
 		));
-		$subject = $this->subject(array(), array(
-			'mock' => true,
-			'methods' => array('normalizeFile'),
-		));
+		$subject = $this->classTester
+			->withOptions(
+				'mock',    true,
+				'methods', array('normalizeFile')
+			)
+			->buildSubject();
 		$subject->expects($this->any())
 			->method('normalizeFile')
 			->will($this->returnValue($_SERVER['PROFILE']));
@@ -81,10 +84,12 @@ class SourceTest extends Unit {
 				'url' => 'http://yahoo.com',
 			),
 		));
-		$subject = $this->subject(array(), array(
-			'mock' => true,
-			'methods' => array('normalizeFile'),
-		));
+		$subject = $this->classTester
+			->withOptions(
+				'mock',    true,
+				'methods', array('normalizeFile')
+			)
+			->buildSubject();
 		$subject->expects($this->any())
 			->method('normalizeFile')
 			->will($this->returnValue($_SERVER['PROFILE']));
@@ -127,10 +132,12 @@ class SourceTest extends Unit {
 		Mock::filter('glob', function($pattern) use ($files) {
 				return $files;
 		});
-		$subject = $this->subject(array(), array(
-			'mock' => true,
-			'methods' => array('normalizeFile'),
-		));
+		$subject = $this->classTester
+			->withOptions(
+				'mock',    true,
+				'methods', array('normalizeFile')
+			)
+			->buildSubject();
 		$subject->expects($this->any())
 			->method('normalizeFile')
 			->will($this->returnValue($_SERVER['PROFILE']));
@@ -155,7 +162,9 @@ class SourceTest extends Unit {
 	}
 
 	public function testNormalizeGivesBackNodes() {
-		$result = $this->subject()->normalizeData(range(1,2), function() {
+		$subject = $this->classTester
+			->buildSubject();
+		$result = $subject->normalizeData(range(1,2), function() {
 			return 'yes';
 		});
 		$expected = array('yes');
@@ -163,3 +172,4 @@ class SourceTest extends Unit {
 	}
 
 }
+

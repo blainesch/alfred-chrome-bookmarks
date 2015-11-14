@@ -4,20 +4,58 @@ use alfmarks\Query;
 
 class QueryTest extends Unit {
 
+	public function setUp() {
+		$this->classTester = new Unit(self::getCalledClass());
+	}
+
 	public function testSetsModel() {
-		$this->assertEquals('foo', $this->subject(array('model' => 'foo'))->model);
+		// A `Query` with a model assigned to `foo` call model should return `foo`.
+		$this->assertEquals(
+			'foo',
+			$this
+				->classTester
+				->withParams('model', 'foo')
+				->buildSubject()
+				->model
+		);
 	}
 
 	public function testSetsTerm() {
-		$this->assertEquals('foo', $this->subject(array('term' => 'foo'))->term);
+		// A `Query` with a term assigned to `foo` call term should return `foo`.
+		$this->assertEquals(
+			'foo',
+			$this
+				->classTester
+				->withParams('term', 'foo')
+				->buildSubject()
+				->term
+		);
 	}
 
 	public function testTerm() {
-		$this->assertEquals('/.*?((f).*?(o).*?(o)).*?|.*?((f).*?(o)).*?|.*?((o).*?(o)).*?/i', $this->subject(array('term' => 'foo'))->regex());
+		// A `Query` with a term assigned to `foo` call regex should return `pattern`.
+		$this->assertEquals(
+			'/.*?((f).*?(o).*?(o)).*?|.*?((f).*?(o)).*?|.*?((o).*?(o)).*?/i',
+			$this
+				->classTester
+				->withParams('term', 'foo')
+				->buildSubject()
+				->regex()
+		);
 	}
 
 	public function testTermWithCharacters() {
-		$this->assertEquals('/.*?((\]).*?(\[).*?(\^)).*?|.*?((\]).*?(\[)).*?|.*?((\[).*?(\^)).*?/i', $this->subject(array('term' => '][^'))->regex());
+		// A `Query` with a term assigned to `][^` call regex should return...
+		// a corrected pattern with escape backslash `\` before caret `^` symbols.
+		$this->assertEquals(
+			'/.*?((\]).*?(\[).*?(\^)).*?|.*?((\]).*?(\[)).*?|.*?((\[).*?(\^)).*?/i',
+			$this
+				->classTester
+				->withParams('term', '][^')
+				->buildSubject()
+				->regex()
+		);
 	}
 
 }
+
