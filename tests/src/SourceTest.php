@@ -4,9 +4,9 @@ use org\bovigo\vfs\vfsStream;
 use alfmarks\Source;
 use alfmarks\Query;
 use alfmarks\BookmarkModel;
-use alfmarks\Mock;
+use alfmarks\Helper;
 
-class SourceTest extends Unit {
+class SourceTest extends PHPUnit_Framework_TestCase {
 
 	public function createProfile($arr, $name = 'profile') {
 		$file = vfsStream::url('home/' . $name . '.json');
@@ -16,10 +16,14 @@ class SourceTest extends Unit {
 
 	public function setUp() {
 		$this->root = vfsStream::setup('home');
+		$calledClass = str_replace(
+			'Test', '', get_called_class()
+		);
+		$this->classTester = new Mock($calledClass);
 	}
 
 	public function tearDown() {
-		Mock::filter('glob', function($pattern) {
+		Helper::filter('glob', function($pattern) {
 			return array($pattern);
 		});
 	}
@@ -42,10 +46,12 @@ class SourceTest extends Unit {
 				'url' => 'http://yahoo.com',
 			),
 		));
-		$subject = $this->subject(array(), array(
-			'mock' => true,
-			'methods' => array('normalizeFile'),
-		));
+		$subject = $this->classTester
+			->withOptions(
+				'mock',    true,
+				'methods', array('normalizeFile')
+			)
+			->buildSubject();
 		$subject->expects($this->any())
 			->method('normalizeFile')
 			->will($this->returnValue($_SERVER['PROFILE']));
@@ -81,10 +87,12 @@ class SourceTest extends Unit {
 				'url' => 'http://yahoo.com',
 			),
 		));
-		$subject = $this->subject(array(), array(
-			'mock' => true,
-			'methods' => array('normalizeFile'),
-		));
+		$subject = $this->classTester
+			->withOptions(
+				'mock',    true,
+				'methods', array('normalizeFile')
+			)
+			->buildSubject();
 		$subject->expects($this->any())
 			->method('normalizeFile')
 			->will($this->returnValue($_SERVER['PROFILE']));
@@ -124,13 +132,15 @@ class SourceTest extends Unit {
 				'url' => 'http://mail.yahoo.com',
 			),
 		), 'profile2');
-		Mock::filter('glob', function($pattern) use ($files) {
+		Helper::filter('glob', function($pattern) use ($files) {
 				return $files;
 		});
-		$subject = $this->subject(array(), array(
-			'mock' => true,
-			'methods' => array('normalizeFile'),
-		));
+		$subject = $this->classTester
+			->withOptions(
+				'mock',    true,
+				'methods', array('normalizeFile')
+			)
+			->buildSubject();
 		$subject->expects($this->any())
 			->method('normalizeFile')
 			->will($this->returnValue($_SERVER['PROFILE']));
@@ -155,7 +165,9 @@ class SourceTest extends Unit {
 	}
 
 	public function testNormalizeGivesBackNodes() {
-		$result = $this->subject()->normalizeData(range(1,2), function() {
+		$subject = $this->classTester
+			->buildSubject();
+		$result = $subject->normalizeData(range(1,2), function() {
 			return 'yes';
 		});
 		$expected = array('yes');
@@ -163,3 +175,4 @@ class SourceTest extends Unit {
 	}
 
 }
+

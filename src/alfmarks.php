@@ -6,14 +6,14 @@ use SimpleXMLElement;
 
 class BookmarkCollection {
 
-	public $nodes;
+	public $bookmarks;
 
-	public function __construct($nodes = array()) {
-		$this->nodes = $nodes;
+	public function __construct($bookmarks = array()) {
+		$this->bookmarks = $bookmarks;
 	}
 
 	public function sort() {
-		usort($this->nodes, function($a, $b) {
+		usort($this->bookmarks, function($a, $b) {
 			return strcmp($b->score, $a->score);
 		});
 		return $this;
@@ -21,8 +21,8 @@ class BookmarkCollection {
 
 	public function to_xml() {
 		$document = new SimpleXMLElement('<items />');
-		foreach ($this->nodes as $node) {
-			$node->to_xml($document);
+		foreach ($this->bookmarks as $bookmark) {
+			$bookmark->to_xml($document);
 		}
 		return $document->asXML();
 	}
@@ -39,21 +39,28 @@ class BookmarkModel {
 		$this->score = $score;
 	}
 
+	public function __get($key) {
+		return $this->data[$key];
+	}
+
 	public function to_xml($parent = null) {
 		if ($parent === null) {
 			$parent = new SimpleXMLElement('<items />');
 		}
 		$item = $parent->addChild('item');
-		$item->addAttribute('arg', $this->data['url']);
-		$item->addAttribute('uid', $this->data['id'] . $this->score);
-		$item->title = $this->data['name'];
-		$item->subtitle = $this->data['url'];
+		$item->addAttribute('arg', $this->url);
+		$item->addAttribute('uid', $this->id . $this->score);
+		$item->title = $this->name;
+		$item->subtitle = $this->url;
 		return $item;
 	}
 
 	public static function find($term) {
 		$source = new Source();
-		$data = $source->read(new Query(array('term' => $term, 'model' => __CLASS__)));
+		$data = $source->read(new Query([
+			'term' => $term,
+			'model' => __CLASS__,
+		]));
 		return new BookmarkCollection($data);
 	}
 }
