@@ -63,6 +63,45 @@ class SourceTest extends Unit {
 		$this->assertEquals($expected[0]->data['name'], $nodes[0]->data['name']);
 	}
 
+	public function testUnicodeRead() {
+		$_SERVER['PROFILE'] = $this->createProfile(array(
+			array(
+				'id' => 1,
+				'name' => '구글',
+				'url' => 'http://google.com',
+			),
+			array(
+				'id' => 2,
+				'name' => '구글 메일',
+				'url' => 'http://mail.google.com',
+			),
+			array(
+				'id' => 3,
+				'name' => '야후',
+				'url' => 'http://yahoo.com',
+			),
+		));
+		$subject = $this->subject(array(), array(
+			'mock' => true,
+			'methods' => array('normalizeFile'),
+		));
+		$subject->expects($this->any())
+			->method('normalizeFile')
+			->will($this->returnValue($_SERVER['PROFILE']));
+		$nodes = $subject->read(new Query(array(
+			'model' => 'alfmarks\BookmarkModel',
+			'term' => normalizer_normalize('구글'),
+		)));
+		$expected = array(
+			new BookmarkModel(array(
+				'id' => 1,
+				'name' => '구글',
+				'url' => 'http://google.com',
+			)),
+		);
+		$this->assertEquals($expected[0]->data['name'], $nodes[0]->data['name']);
+	}
+
 	public function testRead() {
 		$_SERVER['PROFILE'] = $this->createProfile(array(
 			array(

@@ -1,10 +1,11 @@
 language: php
 
+os:
+  - osx
+
 php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
+  - 5.5 # el capitan
+  - 5.6 # sierra
 
 before_install:
   - php composer.phar install --dev
